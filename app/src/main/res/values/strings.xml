@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">NFC Test</string>
+    <string name="readButton">Read</string>
+    <string name="writeButton">Write</string>
+    <string name="eraseButton">Erase</string>
 </resources>
