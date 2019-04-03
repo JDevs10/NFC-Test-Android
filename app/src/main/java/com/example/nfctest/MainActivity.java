@@ -6,31 +6,24 @@ import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcEvent;
-import android.nfc.NfcManager;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
-import android.os.Build;
 import android.os.Parcelable;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.nfctest.object.Produit;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.Locale;
-
-import static android.nfc.NdefRecord.createMime;
-import static android.nfc.NdefRecord.createTextRecord;
 
 /*
 * Android Model : XXXXXXXXX
@@ -41,9 +34,11 @@ public class MainActivity extends AppCompatActivity  {
     public static final String NFC = "android.permission.NFC";
 
     private NfcAdapter nfcAdapter;
-    private EditText textView;
+    private EditText editText;
     private ToggleButton toggleButton_show;
     private boolean NFC_checker = false;
+
+    private int cpt=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity  {
         // Check for available NFC Adapter
         NFC_checker();
 
-        textView = (EditText) findViewById(R.id.textView_nfcShow);
+        editText = (EditText) findViewById(R.id.textView_nfcShow);
         toggleButton_show = (ToggleButton)findViewById(R.id.toggleButton_show);
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -61,7 +56,7 @@ public class MainActivity extends AppCompatActivity  {
         toggleButton_show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView.setText("");
+                editText.setText("");
             }
         });
 
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 }else {
                     Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                    NdefMessage ndefMessage = createNdefMessage(textView.getText()+"");
+                    NdefMessage ndefMessage = createNdefMessage(editText.getText()+"");
                     writeNdefMessage(tag, ndefMessage);
                 }
 
@@ -182,6 +177,10 @@ public class MainActivity extends AppCompatActivity  {
                     return;
                 }
 
+                /**
+                 * Need to write a product on the nfc tag but cannot write a n object product in NdefRecord
+                 * So why not use NdefRecord[] ??? if that faild write the product object in string format but need to use ;, | to split the information to read the tag easily
+                 * */
                 ndef.writeNdefMessage(msg);
                 ndef.close();
                 Toast.makeText(this, "Tag written !", Toast.LENGTH_LONG).show();
@@ -230,7 +229,7 @@ public class MainActivity extends AppCompatActivity  {
         if (ndefRecords != null & ndefRecords.length > 0){
             NdefRecord ndefRecord = ndefRecords[0];
             String tagContent = getTextFromNdefRecord(ndefRecord);
-            textView.setText(tagContent);
+            editText.setText(tagContent);
 
         }else {
             Toast.makeText(this, "No NFC records found !", Toast.LENGTH_LONG).show();
@@ -251,4 +250,45 @@ public class MainActivity extends AppCompatActivity  {
         return tagContent;
     }
 
+    private String creatAndSend(String name, String note){
+        String product_String = null;
+        Timestamp dateTime = new Timestamp(123455689);
+
+        Produit produit = new Produit();
+        produit.setId("9999999999ID_"+cpt);
+        produit.setRef("9999999999REF");
+        produit.setRef_ext("9999999999REF_EXT");
+        produit.setType("9999999999TYPE");
+        produit.setLabel("9999999999LABEL");
+        produit.setDescription("9999999999DESCRIPTION");
+        produit.setDate_creation(dateTime);
+        produit.setDate_modification(new Timestamp(1234567899));
+        produit.setNote(note);
+        produit.setStatus_tobuy("STATUS_TOBUY");
+        produit.setStatus_tosell("STATUS_TOSELL");
+        produit.setBarcode("BARCODE");
+        produit.setBarcode_type("BARCODE_TYPE");
+        produit.setCountry_id("COUNTRY_ID");
+        produit.setCountry_code("COUNTRY_CODE");
+        produit.setCustomcode("CUSTONCODE");
+        produit.setPrice_net("PRICE_NET");
+        produit.setPrice("PRICE");
+        produit.setPrice_min_net("PRICE_MIN_NET");
+        produit.setPrice_min("PRICE_MIN");
+        produit.setPrice_base_type("PRICE_BASE_TYPE");
+        produit.setVat_rate("VALUE_RATE");
+        produit.setVat_npr("VALUE_npr");
+        produit.setLocaltax1_tx("LOCAL_TAX1_TX");
+        produit.setLocaltax2_tx("LOCAL_TAX2_TX");
+        produit.setStock_alert("STOCK_ALERT");
+        produit.setStock_real("STOCK_REAL");
+        produit.setStock_pmp("STOCK_PMP");
+        produit.setWarehouse_ref("WAREHOUSE_REF");
+        produit.setCanvas("CANVAS");
+        produit.setImport_key("IMPORT_KEY");
+        produit.setDir("DIR");
+        produit.setImages("THE_PRODUCT_IMAGE");
+
+        return product_String;
+    }
 }
